@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('roles', function (Blueprint $table) {
-            $table->uuid();
+            $table->id();
 
             $table->string('name');
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_roles');
+        Schema::dropIfExists('roles');
     }
 };
