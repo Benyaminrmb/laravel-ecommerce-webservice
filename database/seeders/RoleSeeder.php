@@ -1,0 +1,20 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Role;
+use Database\Factories\RoleFactory;
+use Illuminate\Database\Seeder;
+
+class RoleSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $roles=\App\Enums\Role::cases();
+        foreach ($roles as $role) {
+            Role::factory()->create([
+                'name'=>$role->value
+            ]);
+        }
+    }
+}

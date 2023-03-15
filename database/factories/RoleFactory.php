@@ -16,7 +16,7 @@ class RoleFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'=>Arr::random(RoleEnum::cases())
+
         ];
     }
 }
