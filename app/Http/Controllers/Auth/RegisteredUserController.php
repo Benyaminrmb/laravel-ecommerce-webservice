@@ -6,11 +6,8 @@ use App\Enums\Role as EnumRole;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -21,7 +18,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request):JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
@@ -30,7 +27,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', Rules\Password::defaults()],
         ]);
 
-        $role=Role::select('id')->where('name',EnumRole::UNVERIFIED_USER->value)->first();
+        $role = Role::select('id')->where('name', EnumRole::UNVERIFIED_USER->value)->first();
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -40,6 +37,6 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return $this->jsonResponse(true,$user);
+        return $this->jsonResponse(true, $user);
     }
 }
