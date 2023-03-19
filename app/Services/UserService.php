@@ -18,10 +18,9 @@ class UserService
         return !!!User::query()->whereNotNull('password')->first();
     }
 
-    public static function authenticateUser(array $data)
+    public static function authenticateUser(array $data): User
     {
-        $user = static::createNewUser($data);
-        Auth::login($user,);
+        return static::createNewUser($data);
     }
 
     private static function getField($username): string

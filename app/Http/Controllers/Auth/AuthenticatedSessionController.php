@@ -20,9 +20,8 @@ class AuthenticatedSessionController extends Controller
         $userExistence =  UserService::checkUserExists($username);
 
         if (!$userExistence){
-            UserService::authenticateUser(['username' => $username]);
-
-            \auth()->user()->sendVerificationNotification();
+            $user = UserService::authenticateUser(['username' => $username]);
+           $user->sendVerificationNotification();
 
             return to_route('email.verify');
         }
