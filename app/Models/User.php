@@ -13,6 +13,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    const EMAIL_FIELD  = 'email';
+    const MOBILE_FIELD  = 'phone_number';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -50,5 +53,10 @@ class User extends Authenticatable
         return $this->belongsTo(
             related: Role::class, foreignKey: 'role_id'
         );
+    }
+
+    public function sendVerificationNotification()
+    {
+        // todo send Notification to user
     }
 }
