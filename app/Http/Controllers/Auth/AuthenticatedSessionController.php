@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -13,12 +14,22 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request)
     {
-        $request->authenticate();
+        $username =  $request->username;
+        $userExistence =  UserService::checkUserExists($username);
 
-        $request->session()->regenerate();
+        if (!$userExistence){
+            $user = UserService::authenticateUser(['username' => $username]);
+           $user->sendVerificationNotification();
 
+            return to_route('email.verify');
+        }
+
+        //todo auth process when user exists
+
+
+        UserService::checkUserHasPassword();
         return response()->noContent();
     }
 
