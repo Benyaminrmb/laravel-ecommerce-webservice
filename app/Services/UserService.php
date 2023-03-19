@@ -2,31 +2,33 @@
 
 namespace App\Services;
 
+use App\Enums\Role as EnumRole;
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
-    public static function checkUserExists($username): bool
+    public static function checkUserExists(array $entry): bool
     {
-        $field = static::getField($username);
-        return !!!User::query()->where($field, $username)->first();
+        $arrayEntry = self::getArrayEntry($entry);
+
+        return User::query()->where($arrayEntry['key'], $arrayEntry['value'])->exists();
     }
 
     public static function fetchUser(array $entry): User
     {
         $arrayEntry = self::getArrayEntry($entry);
+
         return User::query()->where($arrayEntry['key'], $arrayEntry['value'])->first();
     }
 
     public static function checkUserHasPassword(User $user): bool
     {
-        return !!!User::query()->whereNotNull('password')->first();
-    }
+        if (empty($user->password)) {
+            return false;
+        }
 
-    public static function authenticateUser(array $data): User
-    {
-        return static::createNewUser($data);
+        return true;
     }
 
     private static function getField($username): string
@@ -34,11 +36,24 @@ class UserService
         return filter_var($username, FILTER_VALIDATE_EMAIL) ? User::EMAIL_FIELD : User::MOBILE_FIELD;
     }
 
-    private static function createNewUser(array $data): User
+    public static function createNewUser(array $data): User
     {
+        $roleId = Role::where('name', EnumRole::UNVERIFIED_USER->value)->first()->id;
+
         return User::create([
-            static::getField($data['username']) => $data['username'],
+            $data['key'] => $data['value'],
+            'role_id' => $roleId,
         ]);
     }
 
+    public static function getArrayEntry(array $entry): array
+    {
+        $key = current(array_keys($entry));
+        $value = current(array_values($entry));
+
+        return [
+            'key' => $key,
+            'value' => $value,
+        ];
+    }
 }

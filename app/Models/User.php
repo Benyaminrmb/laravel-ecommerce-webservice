@@ -13,8 +13,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    const EMAIL_FIELD  = 'email';
-    const MOBILE_FIELD  = 'phone_number';
+    const EMAIL_FIELD = 'email';
+
+    const MOBILE_FIELD = 'phone_number';
 
     /**
      * The attributes that are mass assignable.
