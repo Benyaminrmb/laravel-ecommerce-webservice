@@ -13,7 +13,13 @@ class UserService
         return !!!User::query()->where($field, $username)->first();
     }
 
-    public static function checkUserHasPassword(): bool
+    public static function fetchUser(array $entry): User
+    {
+        $arrayEntry = self::getArrayEntry($entry);
+        return User::query()->where($arrayEntry['key'], $arrayEntry['value'])->first();
+    }
+
+    public static function checkUserHasPassword(User $user): bool
     {
         return !!!User::query()->whereNotNull('password')->first();
     }
