@@ -34,7 +34,7 @@ class UserService
         return Auth::attempt($credentials);
     }
 
-    public static function fetchUser(array $entry): User
+    public static function fetchUser(array $entry)
     {
         $arrayEntry = self::getArrayEntry($entry);
 
