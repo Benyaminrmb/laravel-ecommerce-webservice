@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
 use App\Models\User;
-use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -26,16 +25,12 @@ class AuthenticateController extends Controller
 
         if ($userExistence) {
             $fetchUser = UserService::fetchUser($entry);
-
-//            $fetchUser->notify(new UserAuthenticateNotification);
-//            die();
-
             /*
             * check user provided password already.
             */
 
             if (UserService::checkUserHasPassword($fetchUser)) {
-                $password = $request->password;
+                $password = $request->get('password');
                 $validator = Validator::make(['password' => $password], [
                     'password' => [
                         'required',
@@ -51,10 +46,7 @@ class AuthenticateController extends Controller
                 ];
 
                 if (Auth::attempt($credentials)) {
-
-
                     $token = Auth::user()->createToken('Token Name')->accessToken->token;
-
 
                     return $this->jsonResponse(true, [
                         'access_token' => $token,
