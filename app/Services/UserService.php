@@ -15,6 +15,31 @@ class UserService
         return User::query()->where($arrayEntry['key'], $arrayEntry['value'])->exists();
     }
 
+    public static function isUserVerified(User $user): bool
+    {
+        if (empty($user->email_verified_at) && empty($user->phone_number_verified_at)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function createToken(User $user): string
+    {
+        return $user->createToken('Token Name')->accessToken->token;
+    }
+
+    public static function checkUserCredentials(array $entry, string $password): bool
+    {
+        $arrayEntry = self::getArrayEntry($entry);
+        $credentials = [
+            $arrayEntry['key'] => $arrayEntry['value'],
+            'password' => $password,
+        ];
+
+        return Auth::attempt($credentials);
+    }
+
     public static function fetchUser(array $entry): User
     {
         $arrayEntry = self::getArrayEntry($entry);

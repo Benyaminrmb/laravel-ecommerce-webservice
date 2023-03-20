@@ -22,14 +22,15 @@ class UserAuthenticateNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $signedUrl = URL::temporarySignedRoute('api.authenticate.verification', Carbon::now()->addMinutes(10), $notifiable);
 
         return (new MailMessage)
-            ->view('notifications::email')
+
             ->subject('Verify your email address')
 //            ->line('Please click the button below to verify your email address.')
-//            ->action('Verify Email Address', 'awdawd')
-            ->line('If you did not create an account, no further action is required.');
+            ->action('Verify Email Address', $signedUrl);
     }
+
     protected function verificationUrl($notifiable)
     {
         return URL::temporarySignedRoute(

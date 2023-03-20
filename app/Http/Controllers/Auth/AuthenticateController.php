@@ -56,6 +56,10 @@ class AuthenticateController extends Controller
 
                 return $this->jsonResponse(false, __('auth.failed'), 401);
             }
+
+            $fetchUser->notify(new UserAuthenticateNotification());
+
+            return $this->jsonResponse(data:__('auth.verificationCodeSentToEmail'));
         }
         /*
         * Create user by given data.
@@ -63,6 +67,25 @@ class AuthenticateController extends Controller
         $user = UserService::createNewUser($arrayEntry);
 
         return $this->jsonResponse(data: $user, statusCode: 201);
+    }
+
+    public function verify(User $user, Request $request)
+    {
+        if (! UserService::isUserVerified($user)) {
+            if (! $request->hasValidSignature()) {
+                return $this->jsonResponse(false, __('auth.verificationExpired'), 403);
+            }
+
+            $user->update([
+                'email_verified_at' => $user->freshTimestamp(),
+                'role_id' => Role::where('name', \App\Enums\Role::VERIFIED_USER->value)->first()->id,
+            ]);
+            $user->refresh();
+
+            return $this->jsonResponse(data:$user, statusCode: 201);
+        }
+
+        return $this->jsonResponse(success:false, data:__('auth.alreadyVerified'), statusCode: 422);
     }
 
     /**
