@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
+use App\Models\User;
 use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -26,7 +27,8 @@ class AuthenticateController extends Controller
         if ($userExistence) {
             $fetchUser = UserService::fetchUser($entry);
 
-            $fetchUser->notify(new UserAuthenticateNotification);
+//            $fetchUser->notify(new UserAuthenticateNotification);
+//            die();
 
             /*
             * check user provided password already.
@@ -49,8 +51,15 @@ class AuthenticateController extends Controller
                 ];
 
                 if (Auth::attempt($credentials)) {
-                    //todo complete login
-                    return $this->jsonResponse(true, $fetchUser);
+
+
+                    $token = Auth::user()->createToken('Token Name')->accessToken->token;
+
+
+                    return $this->jsonResponse(true, [
+                        'access_token' => $token,
+                        'token_type' => 'Bearer',
+                    ]);
                 }
 
                 return $this->jsonResponse(false, __('auth.failed'), 401);
