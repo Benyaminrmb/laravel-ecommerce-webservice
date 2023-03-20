@@ -9,8 +9,6 @@ use App\Models\User;
 use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
@@ -24,10 +22,11 @@ class AuthenticateController extends Controller
         $entry = $request->only(['email', 'phone_number']);
 
         $fetchUser = UserService::fetchUser($entry);
+
         if (!$fetchUser) {
             $user = UserService::createNewUser($entry);
             $user->notify(new UserAuthenticateNotification());
-            return $this->jsonResponse(data: $user, statusCode: 201);
+            return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_CREATED);
         }
         /*
         * check user provided password already.
@@ -40,7 +39,7 @@ class AuthenticateController extends Controller
                 ],
             ]);
             if ($validator->fails()) {
-                return $this->jsonResponse(false, $validator->errors(), 422);
+                return $this->jsonResponse(false, $validator->errors(), ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             if (UserService::checkUserCredentials($entry, $password)) {
@@ -51,7 +50,7 @@ class AuthenticateController extends Controller
                     'token_type' => 'Bearer',
                 ]);
             }
-            return $this->jsonResponse(false, __('auth.failed'), 401);
+            return $this->jsonResponse(false, __('auth.failed'), ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
         $fetchUser->notify(new UserAuthenticateNotification());
