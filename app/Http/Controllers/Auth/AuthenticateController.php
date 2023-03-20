@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
+use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -24,6 +25,8 @@ class AuthenticateController extends Controller
 
         if ($userExistence) {
             $fetchUser = UserService::fetchUser($entry);
+
+            $fetchUser->notify(new UserAuthenticateNotification);
 
             /*
             * check user provided password already.
