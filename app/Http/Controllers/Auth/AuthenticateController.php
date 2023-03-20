@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
+use App\Models\Role;
 use App\Models\User;
+use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,7 +21,6 @@ class AuthenticateController extends Controller
     public function authenticate(AuthenticateRequest $request)
     {
         $entry = $request->only(['email', 'phone_number']);
-        $arrayEntry = UserService::getArrayEntry($entry);
 
         $userExistence = UserService::checkUserExists($entry);
 
@@ -40,13 +41,8 @@ class AuthenticateController extends Controller
                     return $this->jsonResponse(false, $validator->errors(), 422);
                 }
 
-                $credentials = [
-                    $arrayEntry['key'] => $arrayEntry['value'],
-                    'password' => $password,
-                ];
-
-                if (Auth::attempt($credentials)) {
-                    $token = Auth::user()->createToken('Token Name')->accessToken->token;
+                if (UserService::checkUserCredentials($entry, $password)) {
+                    $token = UserService::createToken($fetchUser);
 
                     return $this->jsonResponse(true, [
                         'access_token' => $token,
@@ -64,7 +60,7 @@ class AuthenticateController extends Controller
         /*
         * Create user by given data.
         */
-        $user = UserService::createNewUser($arrayEntry);
+        $user = UserService::createNewUser($entry);
 
         return $this->jsonResponse(data: $user, statusCode: 201);
     }
