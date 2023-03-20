@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\Role as EnumRole;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
@@ -61,12 +62,13 @@ class UserService
         return filter_var($username, FILTER_VALIDATE_EMAIL) ? User::EMAIL_FIELD : User::MOBILE_FIELD;
     }
 
-    public static function createNewUser(array $data): User
+    public static function createNewUser(array $entry): User
     {
+        $arrayEntry = self::getArrayEntry($entry);
         $roleId = Role::where('name', EnumRole::UNVERIFIED_USER->value)->first()->id;
 
         return User::create([
-            $data['key'] => $data['value'],
+            $arrayEntry['key'] => $arrayEntry['value'],
             'role_id' => $roleId,
         ]);
     }
