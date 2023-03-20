@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
+    public static function findById(int $id)
+    {
+        return User::query()->where('id' , $id)->first();
+    }
     public static function isUserVerified(User $user): bool
     {
         if ($user->hasVerifiedEmail() && $user->hasVerifiedPhoneNumber()) {
