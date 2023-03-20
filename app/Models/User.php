@@ -57,6 +57,16 @@ class User extends Authenticatable
         );
     }
 
+    public function hasVerifiedEmail(): bool
+    {
+        return empty($this->email_verified_at);
+    }
+
+    public function hasVerifiedPhoneNumber(): bool
+    {
+      return empty($user->phone_number_verified_at);
+    }
+
     public function sendVerificationNotification()
     {
         // todo send Notification to user

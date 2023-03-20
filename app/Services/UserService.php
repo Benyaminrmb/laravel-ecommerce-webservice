@@ -9,16 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
-    public static function checkUserExists(array $entry): bool
-    {
-        $arrayEntry = self::getArrayEntry($entry);
-
-        return User::query()->where($arrayEntry['key'], $arrayEntry['value'])->exists();
-    }
-
     public static function isUserVerified(User $user): bool
     {
-        if (empty($user->email_verified_at) && empty($user->phone_number_verified_at)) {
+        if ($user->hasVerifiedEmail() && $user->hasVerifiedPhoneNumber()) {
             return false;
         }
 
@@ -71,6 +64,11 @@ class UserService
             $arrayEntry['key'] => $arrayEntry['value'],
             'role_id' => $roleId,
         ]);
+    }
+
+    public static function updateUser(User $user , Array $data)
+    {
+        return tap($user)->update($data);
     }
 
     public static function getArrayEntry(array $entry): array
