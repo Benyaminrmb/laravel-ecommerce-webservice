@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
+use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\UserAuthenticateNotification;
@@ -73,6 +74,18 @@ class AuthenticateController extends Controller
         ]);
 
         return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
+    }
+
+
+    public function setPassword(SetPasswordRequest $request,int $id)
+    {
+        if (! $user = UserService::findById($id)) {
+            return $this->jsonResponse(success: false, statusCode: ResponseAlias::HTTP_NOT_FOUND);
+        }
+
+        UserService::updateUser($user, ['password' => bcrypt($request->password)]);
+
+        return $this->jsonResponse(success: true, data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
     }
 
 }
