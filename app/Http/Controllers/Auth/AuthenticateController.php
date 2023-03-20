@@ -37,7 +37,7 @@ class AuthenticateController extends Controller
                     ],
                 ]);
                 if ($validator->fails()) {
-                    return $this->jsonResponse(false, __('auth.password'), 422);
+                    return $this->jsonResponse(false, $validator->errors(), 422);
                 }
 
                 $credentials = [
