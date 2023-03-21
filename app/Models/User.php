@@ -3,19 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserEntryTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    const EMAIL_FIELD = 'email';
-
-    const MOBILE_FIELD = 'phone_number';
 
     /**
      * The attributes that are mass assignable.
@@ -25,10 +23,10 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'email',
+
         'password',
         'role_id',
-        'email_verified_at',
+
     ];
 
     /**
@@ -41,15 +39,6 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
     public function role(): BelongsTo
     {
         return $this->belongsTo(
@@ -57,18 +46,32 @@ class User extends Authenticatable
         );
     }
 
-    public function hasVerifiedEmail(): bool
-    {
-        return empty($this->email_verified_at);
-    }
-
-    public function hasVerifiedPhoneNumber(): bool
-    {
-      return empty($user->phone_number_verified_at);
-    }
-
     public function sendVerificationNotification()
     {
         // todo send Notification to user
+    }
+
+    public function entries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(related: UserEntry::class);
+    }
+
+    public function latestEntry()
+    {
+        return $this->entries()->latest()->first();
+    }
+
+    public function scopeSearchEntry($query, string $type, string $entry)
+    {
+        $query->whereHas('entries', function ($sub_query) use ($entry, $type) {
+            $sub_query->where('type', $type)
+                ->where('entry', $entry);
+        });
+    }
+
+    public function routeNotificationForMail(Notification $notification): array|string
+    {
+        return $this->entries()
+            ->where('type', UserEntryTypeEnum::EMAIL->value)->first()->entry;
     }
 }

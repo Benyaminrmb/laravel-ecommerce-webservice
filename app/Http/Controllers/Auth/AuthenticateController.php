@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
-use App\Models\Role;
 use App\Models\User;
+use App\Models\UserEntry;
 use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -22,17 +22,18 @@ class AuthenticateController extends Controller
     {
         $entry = $request->only(['email', 'phone_number']);
 
-        $fetchUser = UserService::fetchUser($entry);
+        $fetchUser = UserService::fetch($entry);
 
-        if (!$fetchUser) {
-            $user = UserService::createNewUser($entry);
-            $user->notify(new UserAuthenticateNotification());
+        if (! $fetchUser) {
+            $user = UserService::create($entry);
+            $user->notify(new UserAuthenticateNotification($user->latestEntry()));
+
             return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_CREATED);
         }
         /*
         * check user provided password already.
         */
-        if (UserService::checkUserHasPassword($fetchUser)) {
+        if (UserService::hasPassword($fetchUser)) {
             $password = $request->get('password');
             $validator = Validator::make(['password' => $password], [
                 'password' => [
@@ -43,7 +44,7 @@ class AuthenticateController extends Controller
                 return $this->jsonResponse(false, $validator->errors(), ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            if (UserService::checkUserCredentials($entry, $password)) {
+            if (UserService::checkPassword($fetchUser, $password)) {
                 $token = UserService::createToken($fetchUser);
 
                 return $this->jsonResponse(true, [
@@ -51,33 +52,34 @@ class AuthenticateController extends Controller
                     'token_type' => 'Bearer',
                 ]);
             }
+
             return $this->jsonResponse(false, __('auth.failed'), ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
-        $fetchUser->notify(new UserAuthenticateNotification());
+        $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
+
         return $this->jsonResponse(data: __('auth.verificationCodeSentToEmail'));
     }
 
-    public function verify(User $user, Request $request)
+    public function verify(User $user, UserEntry $entry, Request $request)
     {
-        if (UserService::isUserVerified($user)) {
+        if (UserService::isEntryVerified($entry)) {
+//            todo login user at this point
             return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if (!$request->hasValidSignature()) {
+        if (! $request->hasValidSignature()) {
             return $this->jsonResponse(false, __('auth.verificationExpired'), ResponseAlias::HTTP_FORBIDDEN);
         }
 
-        UserService::updateUser($user, [
-            'email_verified_at' => $user->freshTimestamp(),
-            'role_id' => Role::where('name', \App\Enums\Role::VERIFIED_USER->value)->first()->id,
-        ]);
+        UserService::verifyUser($user);
+        UserService::verifyEntry($entry);
+        $user->refresh();
 
         return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
-
-    public function setPassword(SetPasswordRequest $request,int $id)
+    public function setPassword(SetPasswordRequest $request, int $id)
     {
         if (! $user = UserService::findById($id)) {
             return $this->jsonResponse(success: false, statusCode: ResponseAlias::HTTP_NOT_FOUND);
@@ -87,5 +89,4 @@ class AuthenticateController extends Controller
 
         return $this->jsonResponse(success: true, data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
     }
-
 }

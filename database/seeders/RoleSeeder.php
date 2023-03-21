@@ -9,7 +9,7 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        $roles = \App\Enums\Role::cases();
+        $roles = \App\Enums\RoleEnum::cases();
         foreach ($roles as $role) {
             Role::query()->firstOrCreate([
                 'name' => $role->value,
