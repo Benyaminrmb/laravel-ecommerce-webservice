@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Password;
 
 class SetPasswordRequest extends FormRequest
 {
@@ -11,10 +10,11 @@ class SetPasswordRequest extends FormRequest
     {
         return true;
     }
+
     public function rules(): array
     {
         return [
-            'password' => ['required' , 'confirmed' , \Illuminate\Validation\Rules\Password::default() ],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::default()],
         ];
     }
 

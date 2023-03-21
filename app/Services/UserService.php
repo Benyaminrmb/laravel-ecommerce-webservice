@@ -2,20 +2,26 @@
 
 namespace App\Services;
 
-use App\Enums\Role as EnumRole;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Models\UserEntry;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
     public static function findById(int $id)
     {
-        return User::query()->where('id' , $id)->first();
+        return User::query()->where('id', $id)->first();
     }
-    public static function isUserVerified(User $user): bool
+
+    public static function isVerified(User $user): bool
     {
-        if ($user->hasVerifiedEmail() && $user->hasVerifiedPhoneNumber()) {
+        return $user->entries()->whereNot('verified_at')->count() > 0;
+    }
+
+    public static function isEntryVerified(UserEntry $entry): bool
+    {
+        if (empty($entry->verified_at)) {
             return false;
         }
 
@@ -26,26 +32,23 @@ class UserService
     {
         return $user->createToken('Token Name')->accessToken->token;
     }
-
-    public static function checkUserCredentials(array $entry, string $password): bool
+    public static function updateUser(User $user , Array $data)
     {
-        $arrayEntry = self::getArrayEntry($entry);
-        $credentials = [
-            $arrayEntry['key'] => $arrayEntry['value'],
-            'password' => $password,
-        ];
-
-        return Auth::attempt($credentials);
+        return tap($user)->update($data);
+    }
+    public static function checkPassword(User $user, string $password): bool
+    {
+        return Hash::check($password, $user->password);
     }
 
-    public static function fetchUser(array $entry)
+    public static function fetch(array $entry): User|null
     {
         $arrayEntry = self::getArrayEntry($entry);
 
-        return User::query()->where($arrayEntry['key'], $arrayEntry['value'])->first();
+        return User::query()->searchEntry($arrayEntry['key'], $arrayEntry['value'])->first();
     }
 
-    public static function checkUserHasPassword(User $user): bool
+    public static function hasPassword(User $user): bool
     {
         if (empty($user->password)) {
             return false;
@@ -54,25 +57,34 @@ class UserService
         return true;
     }
 
-    private static function getField($username): string
-    {
-        return filter_var($username, FILTER_VALIDATE_EMAIL) ? User::EMAIL_FIELD : User::MOBILE_FIELD;
-    }
-
-    public static function createNewUser(array $entry): User
+    public static function create(array $entry): User
     {
         $arrayEntry = self::getArrayEntry($entry);
-        $roleId = Role::where('name', EnumRole::UNVERIFIED_USER->value)->first()->id;
+        $user = User::create();
+        $user->entries()->create([
+            'type' => $arrayEntry['key'],
+            'entry' => $arrayEntry['value'],
+            'is_main' => ! ($user->entries()->count() > 0),
+        ]);
+        $user->refresh();
 
-        return User::create([
-            $arrayEntry['key'] => $arrayEntry['value'],
-            'role_id' => $roleId,
+        return $user;
+    }
+
+    public static function verifyUser(User $user): User
+    {
+        return tap($user)->update([
+            'role_id' => Role::where('name', \App\Enums\RoleEnum::VERIFIED_USER->value)->first()->id,
         ]);
     }
 
-    public static function updateUser(User $user , Array $data)
+    public static function verifyEntry(UserEntry $entry): UserEntry
     {
-        return tap($user)->update($data);
+        tap($entry)->update([
+            'verified_at' => $entry->freshTimestamp(),
+        ]);
+
+        return $entry->refresh();
     }
 
     public static function getArrayEntry(array $entry): array

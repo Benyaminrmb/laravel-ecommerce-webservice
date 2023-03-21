@@ -13,11 +13,10 @@ return new class extends Migration
 
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->string('email')->unique()->nullable();
-            $table->string('phone_number')->unique()->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->timestamp('phone_number_verified_at')->nullable();
-            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('role_id')
+                ->default('1')
+                ->constrained()
+                ->cascadeOnDelete();
             $table->string('password')->nullable();
 
             $table->rememberToken();
