@@ -68,8 +68,8 @@ class AuthenticateController extends Controller
     {
         $user = \Auth::user();
         if (UserService::isEntryVerified($user->latestEntry())) {
-//            todo login user at this point
-            return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+            $user->token = UserService::createToken($user);
+            return $this->jsonResponse(data: UserResource::make($user),message: __('auth.alreadyVerified'));
         }
 
         if (!EmailVerifyService::checkCodeIsValid($user, $request->code)) {
@@ -78,8 +78,8 @@ class AuthenticateController extends Controller
 
         UserService::verifyUser($user);
         UserService::verifyEntry($user->latestEntry());
-
-        return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
+        $user->token = UserService::createToken($user);
+        return $this->jsonResponse(data: UserResource::make($user),message: __('auth.verified'), statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
     public function setPassword(SetPasswordRequest $request, int $id)
