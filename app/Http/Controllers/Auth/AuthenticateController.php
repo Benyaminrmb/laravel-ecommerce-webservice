@@ -66,7 +66,7 @@ class AuthenticateController extends Controller
 
     public function verify(VerifyCodeRequest $request)
     {
-        $user = UserService::findById($request->user_id);
+        $user = \Auth::user();
         if (UserService::isEntryVerified($user->latestEntry())) {
 //            todo login user at this point
             return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
