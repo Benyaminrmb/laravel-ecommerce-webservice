@@ -20,8 +20,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'entries' => $this->entries,
-            'role' => new RoleResource($this->role),
+            'entries' => EntryResource::collection($this->entries),
+            'role' => RoleResource::make($this->role),
         ];
         if ($this->token) {
             $result['token'] = $this->token;
