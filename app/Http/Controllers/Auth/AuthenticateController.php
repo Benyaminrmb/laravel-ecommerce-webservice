@@ -12,6 +12,7 @@ use App\Models\UserEntry;
 use App\Notifications\UserAuthenticateNotification;
 use App\Services\EmailVerifyService;
 use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
@@ -30,50 +31,43 @@ class AuthenticateController extends Controller
         //create user
         if (!$fetchUser) {
             $user = UserService::create($entry);
-            $user->notify(new UserAuthenticateNotification($user->latestEntry));
-            return $this->loginUser($user, __('auth.createdAndSendVerification'));
+            $user->notify(new UserAuthenticateNotification($user->latestEntry()));
+            $user->token = UserService::createToken($user);
+            return $this->jsonResponse(data: UserResource::make($user), message: __('auth.createdAndSendVerification'),statusCode: ResponseAlias::HTTP_CREATED);
+
         }
 
         //login user
+        if (UserService::hasPassword($fetchUser)) {
+            $password = $request->get('password');
+            $validator = Validator::make(['password' => $password], [
+                'password' => [
+                    'required',
+                ],
+            ]);
+            if ($validator->fails()) {
+                return $this->jsonResponse(success: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
-        //no password
-        if (!UserService::hasPassword($fetchUser)) {
-            $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry));
-            return $this->loginUser($fetchUser, __('auth.verificationCodeSentToEmail'));
+            if (UserService::checkPassword($fetchUser, $password)) {
+                $fetchUser->token = UserService::createToken($fetchUser);
+                return $this->jsonResponse(data: UserResource::make($fetchUser));
+            }
+
+            return $this->jsonResponse(success: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
-        //has password
-        $password = $request->get('password');
-        $validator = Validator::make(['password' => $password], [
-            'password' => [
-                'required',
-            ],
-        ]);
-        if ($validator->fails()) {
-            return $this->jsonResponse(success: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
-        }
+        $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
 
-        if (UserService::checkPassword($fetchUser, $password)) {
-            return $this->loginUser($fetchUser);
-        }
-
-        return $this->jsonResponse(success: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
-//            todo i need to create a token and check that very token in $this->verify method.
-
-
-
+        $fetchUser->token = UserService::createToken($fetchUser);
+        return $this->jsonResponse(success: false, data: UserResource::make($fetchUser), message: __('auth.verificationCodeSentToEmail'));
     }
 
-    public function loginUser(User $user, $message = null): \Illuminate\Http\JsonResponse
-    {
-        $user->token = $user->createToken('Token Name')->accessToken;
-        return $this->jsonResponse(data: UserResource::make($user), message: $message, statusCode: ResponseAlias::HTTP_ACCEPTED);
-    }
 
     public function verify(VerifyCodeRequest $request)
     {
         $user = UserService::findById($request->user_id);
-        if (UserService::isEntryVerified($user->latestEntry)) {
+        if (UserService::isEntryVerified($user->latestEntry())) {
 //            todo login user at this point
             return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -83,7 +77,7 @@ class AuthenticateController extends Controller
         }
 
         UserService::verifyUser($user);
-        UserService::verifyEntry($user->latestEntry);
+        UserService::verifyEntry($user->latestEntry());
 
         return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
