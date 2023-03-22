@@ -9,4 +9,6 @@ Route::post('/authenticate/verification', [AuthenticateController::class, 'verif
     ->middleware('auth:api')
     ->name('api.authenticate.verification');
 
-Route::post('/authenticate/password/set/{id}', [AuthenticateController::class, 'setPassword'])->name('api.authenticate.setPassword');
+Route::put('/authenticate/password/', [AuthenticateController::class, 'setPassword'])
+    ->middleware('auth:api')
+    ->name('api.authenticate.setPassword');

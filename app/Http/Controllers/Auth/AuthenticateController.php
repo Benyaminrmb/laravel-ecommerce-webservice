@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
-
+use Illuminate\Support\Facades\Hash;
 class AuthenticateController extends Controller
 {
     /**
@@ -82,14 +82,11 @@ class AuthenticateController extends Controller
         return $this->jsonResponse(data: UserResource::make($user),message: __('auth.verified'), statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
-    public function setPassword(SetPasswordRequest $request, int $id)
+    public function setPassword(SetPasswordRequest $request)
     {
-        if (!$user = UserService::findById($id)) {
-            return $this->jsonResponse(success: false, statusCode: ResponseAlias::HTTP_NOT_FOUND);
-        }
-
-        UserService::updateUser($user, ['password' => bcrypt($request->password)]);
-
-        return $this->jsonResponse(success: true, data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
+        $user=\Auth::user();
+        UserService::updateUser($user, ['password' => Hash::make($request->password)]);
+        $user->token = UserService::createToken($user);
+        return $this->jsonResponse(data: UserResource::make($user),message: 'awd', statusCode: ResponseAlias::HTTP_OK);
     }
 }
