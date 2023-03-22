@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
+use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Models\User;
 use App\Models\UserEntry;
 use App\Notifications\UserAuthenticateNotification;
+use App\Services\EmailVerifyService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +26,7 @@ class AuthenticateController extends Controller
 
         $fetchUser = UserService::fetch($entry);
 
-        if (! $fetchUser) {
+        if (!$fetchUser) {
             $user = UserService::create($entry);
             $user->notify(new UserAuthenticateNotification($user->latestEntry()));
 
@@ -61,27 +63,27 @@ class AuthenticateController extends Controller
         return $this->jsonResponse(data: __('auth.verificationCodeSentToEmail'));
     }
 
-    public function verify(User $user, UserEntry $entry, Request $request)
+    public function verify(VerifyCodeRequest $request)
     {
-        if (UserService::isEntryVerified($entry)) {
+        $user = UserService::findById($request->user_id);
+        if (UserService::isEntryVerified($user->latestEntry())) {
 //            todo login user at this point
             return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if (! $request->hasValidSignature()) {
+        if (!EmailVerifyService::checkCodeIsValid($user, $request->code)) {
             return $this->jsonResponse(false, __('auth.verificationExpired'), ResponseAlias::HTTP_FORBIDDEN);
         }
 
         UserService::verifyUser($user);
-        UserService::verifyEntry($entry);
-        $user->refresh();
+        UserService::verifyEntry($user->latestEntry());
 
         return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
     public function setPassword(SetPasswordRequest $request, int $id)
     {
-        if (! $user = UserService::findById($id)) {
+        if (!$user = UserService::findById($id)) {
             return $this->jsonResponse(success: false, statusCode: ResponseAlias::HTTP_NOT_FOUND);
         }
 
