@@ -30,7 +30,7 @@ class AuthenticateController extends Controller
         //create user
         if (!$fetchUser) {
             $user = UserService::create($entry);
-            $user->notify(new UserAuthenticateNotification($user->latestEntry()));
+            $user->notify(new UserAuthenticateNotification($user->latestEntry));
             return $this->loginUser($user, __('auth.createdAndSendVerification'));
         }
 
