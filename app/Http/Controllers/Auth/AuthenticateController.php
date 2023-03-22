@@ -42,19 +42,19 @@ class AuthenticateController extends Controller
                 ],
             ]);
             if ($validator->fails()) {
-                return $this->jsonResponse(false, $validator->errors(), ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+                return $this->jsonResponse(success: false,data:  $validator->errors(),statusCode:  ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             if (UserService::checkPassword($fetchUser, $password)) {
                 $token = UserService::createToken($fetchUser);
 
-                return $this->jsonResponse(true, [
+                return $this->jsonResponse(data: [
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                 ]);
             }
 
-            return $this->jsonResponse(false, __('auth.failed'), ResponseAlias::HTTP_UNAUTHORIZED);
+            return $this->jsonResponse(success: false,data:  __('auth.failed'),statusCode:  ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
         $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
@@ -75,7 +75,7 @@ class AuthenticateController extends Controller
         }
 
         if (! $request->hasValidSignature()) {
-            return $this->jsonResponse(false, __('auth.verificationExpired'), ResponseAlias::HTTP_FORBIDDEN);
+            return $this->jsonResponse(success: false,data:  __('auth.verificationExpired'),statusCode:  ResponseAlias::HTTP_FORBIDDEN);
         }
 
         UserService::verifyUser($user);
@@ -92,6 +92,6 @@ class AuthenticateController extends Controller
 
         UserService::updateUser($user, ['password' => bcrypt($request->password)]);
 
-        return $this->jsonResponse(success: true, data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
+        return $this->jsonResponse(data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
     }
 }
