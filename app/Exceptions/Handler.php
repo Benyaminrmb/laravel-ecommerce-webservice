@@ -10,7 +10,6 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -79,6 +78,5 @@ class Handler extends ExceptionHandler
                 ]);
             }
         });*/
-
     }
 }

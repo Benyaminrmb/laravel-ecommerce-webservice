@@ -8,16 +8,13 @@ use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Models\UserEntry;
 use App\Notifications\UserAuthenticateNotification;
 use App\Services\EmailVerifyService;
 use App\Services\UserService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
-use Illuminate\Support\Facades\Hash;
 
 class AuthenticateController extends Controller
 {
@@ -30,12 +27,12 @@ class AuthenticateController extends Controller
         $fetchUser = UserService::fetch($entry);
 
         //create user
-        if (!$fetchUser) {
+        if (! $fetchUser) {
             $user = UserService::create($entry);
             $user->notify(new UserAuthenticateNotification($user->latestEntry()));
             $user->token = UserService::createToken($user);
-            return $this->jsonResponse(data: UserResource::make($user), message: __('auth.createdAndSendVerification'), statusCode: ResponseAlias::HTTP_CREATED);
 
+            return $this->jsonResponse(data: UserResource::make($user), message: __('auth.createdAndSendVerification'), statusCode: ResponseAlias::HTTP_CREATED);
         }
 
         //login user
@@ -52,6 +49,7 @@ class AuthenticateController extends Controller
 
             if (UserService::checkPassword($fetchUser, $password)) {
                 $fetchUser->token = UserService::createToken($fetchUser);
+
                 return $this->jsonResponse(data: UserResource::make($fetchUser));
             }
 
@@ -61,25 +59,27 @@ class AuthenticateController extends Controller
         $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
 
         $fetchUser->token = UserService::createToken($fetchUser);
+
         return $this->jsonResponse(success: false, data: UserResource::make($fetchUser), message: __('auth.verificationCodeSentToEmail'));
     }
-
 
     public function verify(VerifyCodeRequest $request)
     {
         $user = \Auth::user();
         if (UserService::isEntryVerified($user->latestEntry())) {
             $user->token = UserService::createToken($user);
+
             return $this->jsonResponse(data: UserResource::make($user), message: __('auth.alreadyVerified'));
         }
 
-        if (!EmailVerifyService::checkCodeIsValid($user, $request->code)) {
+        if (! EmailVerifyService::checkCodeIsValid($user, $request->code)) {
             return $this->jsonResponse(false, __('auth.verificationExpired'), ResponseAlias::HTTP_FORBIDDEN);
         }
 
         UserService::verifyUser($user);
         UserService::verifyEntry($user->latestEntry());
         $user->token = UserService::createToken($user);
+
         return $this->jsonResponse(data: UserResource::make($user), message: __('auth.verified'), statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
@@ -88,6 +88,7 @@ class AuthenticateController extends Controller
         $user = \Auth::user();
         UserService::updateUser($user, ['password' => Hash::make($request->password)]);
         $user->token = UserService::createToken($user);
+
         return $this->jsonResponse(data: UserResource::make($user), message: __('auth.passwordChanged'), statusCode: ResponseAlias::HTTP_OK);
     }
 }

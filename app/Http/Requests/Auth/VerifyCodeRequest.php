@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class VerifyCodeRequest extends FormRequest
 {
@@ -15,7 +14,7 @@ class VerifyCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required' , 'numeric' ]
+            'code' => ['required', 'numeric'],
         ];
     }
 

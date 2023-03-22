@@ -16,7 +16,6 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         /** @var User $this */
-
         $result = [
             'id' => $this->id,
             'first_name' => $this->first_name,
@@ -27,6 +26,7 @@ class UserResource extends JsonResource
         if ($this->token) {
             $result['token'] = $this->token;
         }
+
         return $result;
     }
 }

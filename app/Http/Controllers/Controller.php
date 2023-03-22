@@ -19,7 +19,6 @@ class Controller extends BaseController
         }
         $response['data'] = $data;
 
-
         return response()->json($response, $statusCode);
     }
 }
