@@ -26,46 +26,47 @@ class AuthenticateController extends Controller
 
         $fetchUser = UserService::fetch($entry);
 
-        if (! $fetchUser) {
+        if (!$fetchUser) {
             $user = UserService::create($entry);
             $user->notify(new UserAuthenticateNotification($user->latestEntry()));
-            return $this->loginUser($user);
+            return $this->loginUser($user, __('auth.createdAndSendVerification'));
         }
         /*
         * check user provided password already.
         */
-        if (UserService::hasPassword($fetchUser)) {
-            $password = $request->get('password');
-            $validator = Validator::make(['password' => $password], [
-                'password' => [
-                    'required',
-                ],
-            ]);
-            if ($validator->fails()) {
-                return $this->jsonResponse(success: false,data:  $validator->errors(),statusCode:  ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
-            }
 
-            if (UserService::checkPassword($fetchUser, $password)) {
-                $token = UserService::createToken($fetchUser);
-
-                return $this->jsonResponse(data: [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
+        if (UserService::isVerified($fetchUser)) {
+            if (UserService::hasPassword($fetchUser)) {
+                $password = $request->get('password');
+                $validator = Validator::make(['password' => $password], [
+                    'password' => [
+                        'required',
+                    ],
                 ]);
-            }
+                if ($validator->fails()) {
+                    return $this->jsonResponse(success: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+                }
 
-            return $this->jsonResponse(success: false,data:  __('auth.failed'),statusCode:  ResponseAlias::HTTP_UNAUTHORIZED);
+                if (UserService::checkPassword($fetchUser, $password)) {
+                    return $this->loginUser($fetchUser);
+                }
+
+                return $this->jsonResponse(success: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
+            }
+//            todo i need to create a token and check that very token in $this->verify method.
+//            $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
+//            return $this->loginUser($fetchUser, __('auth.verificationCodeSentToEmail'));
         }
 
-        $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
 
-        return $this->jsonResponse(data: __('auth.verificationCodeSentToEmail'));
+        $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
+        return $this->loginUser($fetchUser, __('auth.verificationCodeSentToEmail'));
     }
 
-    public function loginUser(User $user): \Illuminate\Http\JsonResponse
+    public function loginUser(User $user, $message = null): \Illuminate\Http\JsonResponse
     {
         $user->token = $user->createToken('Token Name')->accessToken;
-        return $this->jsonResponse(data: UserResource::make($user), statusCode: ResponseAlias::HTTP_ACCEPTED);
+        return $this->jsonResponse(data: UserResource::make($user), message: $message, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
     public function verify(User $user, UserEntry $entry, Request $request)
@@ -74,8 +75,8 @@ class AuthenticateController extends Controller
             return $this->loginUser($user);
         }
 
-        if (! $request->hasValidSignature()) {
-            return $this->jsonResponse(success: false,data:  __('auth.verificationExpired'),statusCode:  ResponseAlias::HTTP_FORBIDDEN);
+        if (!$request->hasValidSignature()) {
+            return $this->jsonResponse(success: false, data: __('auth.verificationExpired'), statusCode: ResponseAlias::HTTP_FORBIDDEN);
         }
 
         UserService::verifyUser($user);
@@ -86,7 +87,7 @@ class AuthenticateController extends Controller
 
     public function setPassword(SetPasswordRequest $request, int $id)
     {
-        if (! $user = UserService::findById($id)) {
+        if (!$user = UserService::findById($id)) {
             return $this->jsonResponse(success: false, statusCode: ResponseAlias::HTTP_NOT_FOUND);
         }
 
