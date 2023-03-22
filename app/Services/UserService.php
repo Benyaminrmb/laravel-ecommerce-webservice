@@ -30,7 +30,7 @@ class UserService
 
     public static function createToken(User $user): string
     {
-        return $user->createToken('Token Name')->accessToken->token;
+        return $user->createToken('Token Name')->accessToken;
     }
     public static function updateUser(User $user , Array $data)
     {

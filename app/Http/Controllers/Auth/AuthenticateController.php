@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserEntry;
 use App\Notifications\UserAuthenticateNotification;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
@@ -27,8 +29,7 @@ class AuthenticateController extends Controller
         if (! $fetchUser) {
             $user = UserService::create($entry);
             $user->notify(new UserAuthenticateNotification($user->latestEntry()));
-
-            return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_CREATED);
+            return $this->loginUser($user);
         }
         /*
         * check user provided password already.
@@ -61,11 +62,16 @@ class AuthenticateController extends Controller
         return $this->jsonResponse(data: __('auth.verificationCodeSentToEmail'));
     }
 
+    public function loginUser(User $user): \Illuminate\Http\JsonResponse
+    {
+        $user->token = $user->createToken('Token Name')->accessToken;
+        return $this->jsonResponse(data: UserResource::make($user), statusCode: ResponseAlias::HTTP_ACCEPTED);
+    }
+
     public function verify(User $user, UserEntry $entry, Request $request)
     {
         if (UserService::isEntryVerified($entry)) {
-//            todo login user at this point
-            return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->loginUser($user);
         }
 
         if (! $request->hasValidSignature()) {
@@ -74,9 +80,8 @@ class AuthenticateController extends Controller
 
         UserService::verifyUser($user);
         UserService::verifyEntry($entry);
-        $user->refresh();
 
-        return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
+        return $this->loginUser($user->refresh());
     }
 
     public function setPassword(SetPasswordRequest $request, int $id)
