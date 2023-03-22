@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthenticateRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
+use App\Http\Requests\Auth\VerifyCodeRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserEntry;
 use App\Notifications\UserAuthenticateNotification;
+use App\Services\EmailVerifyService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -69,20 +71,22 @@ class AuthenticateController extends Controller
         return $this->jsonResponse(data: UserResource::make($user), message: $message, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
-    public function verify(User $user, UserEntry $entry, Request $request)
+    public function verify(VerifyCodeRequest $request)
     {
-        if (UserService::isEntryVerified($entry)) {
-            return $this->loginUser($user);
+        $user = UserService::findById($request->user_id);
+        if (UserService::isEntryVerified($user->latestEntry())) {
+//            todo login user at this point
+            return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if (!$request->hasValidSignature()) {
-            return $this->jsonResponse(success: false, data: __('auth.verificationExpired'), statusCode: ResponseAlias::HTTP_FORBIDDEN);
+        if (!EmailVerifyService::checkCodeIsValid($user, $request->code)) {
+            return $this->jsonResponse(false, __('auth.verificationExpired'), ResponseAlias::HTTP_FORBIDDEN);
         }
 
         UserService::verifyUser($user);
-        UserService::verifyEntry($entry);
+        UserService::verifyEntry($user->latestEntry());
 
-        return $this->loginUser($user->refresh());
+        return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
     public function setPassword(SetPasswordRequest $request, int $id)
@@ -93,6 +97,6 @@ class AuthenticateController extends Controller
 
         UserService::updateUser($user, ['password' => bcrypt($request->password)]);
 
-        return $this->jsonResponse(data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
+        return $this->jsonResponse(success: true, data: __('auth.passwordHasBeenSet'), statusCode: ResponseAlias::HTTP_OK);
     }
 }
