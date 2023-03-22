@@ -18,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 use Illuminate\Support\Facades\Hash;
+
 class AuthenticateController extends Controller
 {
     /**
@@ -33,7 +34,7 @@ class AuthenticateController extends Controller
             $user = UserService::create($entry);
             $user->notify(new UserAuthenticateNotification($user->latestEntry()));
             $user->token = UserService::createToken($user);
-            return $this->jsonResponse(data: UserResource::make($user), message: __('auth.createdAndSendVerification'),statusCode: ResponseAlias::HTTP_CREATED);
+            return $this->jsonResponse(data: UserResource::make($user), message: __('auth.createdAndSendVerification'), statusCode: ResponseAlias::HTTP_CREATED);
 
         }
 
@@ -69,7 +70,7 @@ class AuthenticateController extends Controller
         $user = \Auth::user();
         if (UserService::isEntryVerified($user->latestEntry())) {
             $user->token = UserService::createToken($user);
-            return $this->jsonResponse(data: UserResource::make($user),message: __('auth.alreadyVerified'));
+            return $this->jsonResponse(data: UserResource::make($user), message: __('auth.alreadyVerified'));
         }
 
         if (!EmailVerifyService::checkCodeIsValid($user, $request->code)) {
@@ -79,14 +80,14 @@ class AuthenticateController extends Controller
         UserService::verifyUser($user);
         UserService::verifyEntry($user->latestEntry());
         $user->token = UserService::createToken($user);
-        return $this->jsonResponse(data: UserResource::make($user),message: __('auth.verified'), statusCode: ResponseAlias::HTTP_ACCEPTED);
+        return $this->jsonResponse(data: UserResource::make($user), message: __('auth.verified'), statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
 
     public function setPassword(SetPasswordRequest $request)
     {
-        $user=\Auth::user();
+        $user = \Auth::user();
         UserService::updateUser($user, ['password' => Hash::make($request->password)]);
         $user->token = UserService::createToken($user);
-        return $this->jsonResponse(data: UserResource::make($user),message: 'awd', statusCode: ResponseAlias::HTTP_OK);
+        return $this->jsonResponse(data: UserResource::make($user), message: __('auth.passwordChanged'), statusCode: ResponseAlias::HTTP_OK);
     }
 }
