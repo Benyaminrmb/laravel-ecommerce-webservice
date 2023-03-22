@@ -23,7 +23,6 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'entries' => $this->entries,
             'role' => new RoleResource($this->role),
-            'created_at' => $this->created_at,
         ];
         if ($this->token) {
             $result['token'] = $this->token;
