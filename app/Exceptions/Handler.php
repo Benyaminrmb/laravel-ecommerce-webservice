@@ -10,7 +10,6 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -48,7 +47,7 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->renderable(function (ModelNotFoundException $e, Request $request) {
+        /*$this->renderable(function (ModelNotFoundException $e, Request $request) {
             if ($request->wantsJson() || $request->is('api/*')) {
                 return response()->json([
                     'message' => 'Item Not Found', ResponseAlias::HTTP_NOT_FOUND
@@ -78,7 +77,6 @@ class Handler extends ExceptionHandler
                     'message' => 'The requested link does not exist', ResponseAlias::HTTP_BAD_REQUEST
                 ]);
             }
-        });
-
+        });*/
     }
 }

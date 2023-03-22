@@ -11,12 +11,13 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    public function jsonResponse($success = true, $data = null, $statusCode = 200): JsonResponse
+    public function jsonResponse($success = true, $data = null, $message = null, $statusCode = 200): JsonResponse
     {
-        $response = [
-            'success' => $success,
-            'data' => $data,
-        ];
+        $response['success'] = $success;
+        if ($message) {
+            $response['message'] = $message;
+        }
+        $response['data'] = $data;
 
         return response()->json($response, $statusCode);
     }

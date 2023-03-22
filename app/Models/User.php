@@ -16,6 +16,11 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * @var mixed|string
+     */
+    public mixed $token;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -56,7 +61,7 @@ class User extends Authenticatable
         return $this->hasMany(related: UserEntry::class);
     }
 
-    public function latestEntry()
+    public function latestEntry():UserEntry
     {
         return $this->entries()->latest()->first();
     }

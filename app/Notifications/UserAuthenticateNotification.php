@@ -7,9 +7,7 @@ use App\Models\User;
 use App\Models\UserEntry;
 use App\Services\EmailVerifyService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\URL;
 
 class UserAuthenticateNotification extends Notification
 {

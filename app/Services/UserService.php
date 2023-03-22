@@ -30,12 +30,14 @@ class UserService
 
     public static function createToken(User $user): string
     {
-        return $user->createToken('Token Name')->accessToken->token;
+        return $user->createToken('Token Name')->accessToken;
     }
-    public static function updateUser(User $user , Array $data)
+
+    public static function updateUser(User $user, array $data)
     {
         return tap($user)->update($data);
     }
+
     public static function checkPassword(User $user, string $password): bool
     {
         return Hash::check($password, $user->password);
