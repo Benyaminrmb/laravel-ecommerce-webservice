@@ -6,6 +6,6 @@ return [
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
     'verificationExpired' => 'Your validation link has been expired. Please try resend it again.',
-    'alreadyVerified' => 'You can not verify your data twice!',
+    'alreadyVerified' => 'Your data is already verified.',
     'verificationCodeSentToEmail' => 'To verify your account, you need to set new password. Please verify the sent code to your email or mobile to continue.',
 ];
