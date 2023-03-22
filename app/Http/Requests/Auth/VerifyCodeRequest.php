@@ -15,8 +15,7 @@ class VerifyCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required' , 'numeric' ],
-            'user_id' => ['required' , Rule::exists('users' , 'id') ],
+            'code' => ['required' , 'numeric' ]
         ];
     }
 
