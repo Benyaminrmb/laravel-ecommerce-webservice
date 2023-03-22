@@ -14,7 +14,7 @@ class SetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::default()],
+            'password' => ['required', \Illuminate\Validation\Rules\Password::default()],
         ];
     }
 
