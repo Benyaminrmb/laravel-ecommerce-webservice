@@ -25,44 +25,43 @@ class AuthenticateController extends Controller
     public function authenticate(AuthenticateRequest $request)
     {
         $entry = $request->only(['email', 'phone_number']);
-
         $fetchUser = UserService::fetch($entry);
 
+        //create user
         if (!$fetchUser) {
             $user = UserService::create($entry);
             $user->notify(new UserAuthenticateNotification($user->latestEntry()));
             return $this->loginUser($user, __('auth.createdAndSendVerification'));
         }
-        /*
-        * check user provided password already.
-        */
 
-        if (UserService::isVerified($fetchUser)) {
-            if (UserService::hasPassword($fetchUser)) {
-                $password = $request->get('password');
-                $validator = Validator::make(['password' => $password], [
-                    'password' => [
-                        'required',
-                    ],
-                ]);
-                if ($validator->fails()) {
-                    return $this->jsonResponse(success: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
-                }
+        //login user
 
-                if (UserService::checkPassword($fetchUser, $password)) {
-                    return $this->loginUser($fetchUser);
-                }
-
-                return $this->jsonResponse(success: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
-            }
-//            todo i need to create a token and check that very token in $this->verify method.
-//            $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
-//            return $this->loginUser($fetchUser, __('auth.verificationCodeSentToEmail'));
+        //no password
+        if (!UserService::hasPassword($fetchUser)) {
+            $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry));
+            return $this->loginUser($fetchUser, __('auth.verificationCodeSentToEmail'));
         }
 
+        //has password
+        $password = $request->get('password');
+        $validator = Validator::make(['password' => $password], [
+            'password' => [
+                'required',
+            ],
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponse(success: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
-        return $this->loginUser($fetchUser, __('auth.verificationCodeSentToEmail'));
+        if (UserService::checkPassword($fetchUser, $password)) {
+            return $this->loginUser($fetchUser);
+        }
+
+        return $this->jsonResponse(success: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
+//            todo i need to create a token and check that very token in $this->verify method.
+
+
+
     }
 
     public function loginUser(User $user, $message = null): \Illuminate\Http\JsonResponse
@@ -74,7 +73,7 @@ class AuthenticateController extends Controller
     public function verify(VerifyCodeRequest $request)
     {
         $user = UserService::findById($request->user_id);
-        if (UserService::isEntryVerified($user->latestEntry())) {
+        if (UserService::isEntryVerified($user->latestEntry)) {
 //            todo login user at this point
             return $this->jsonResponse(success: false, data: __('auth.alreadyVerified'), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -84,7 +83,7 @@ class AuthenticateController extends Controller
         }
 
         UserService::verifyUser($user);
-        UserService::verifyEntry($user->latestEntry());
+        UserService::verifyEntry($user->latestEntry);
 
         return $this->jsonResponse(data: $user, statusCode: ResponseAlias::HTTP_ACCEPTED);
     }
