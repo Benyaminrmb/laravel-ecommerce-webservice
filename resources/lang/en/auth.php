@@ -7,5 +7,6 @@ return [
     'password' => 'The provided password is incorrect.',
     'verificationExpired' => 'Your validation link has been expired. Please try resend it again.',
     'alreadyVerified' => 'Your data is already verified.',
+    'verified' => 'Your data has been verified.',
     'verificationCodeSentToEmail' => 'To verify your account, you need to set new password. Please verify the sent code to your email or mobile to continue.',
 ];
