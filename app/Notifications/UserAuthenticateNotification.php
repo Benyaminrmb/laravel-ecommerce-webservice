@@ -2,9 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Mail\VerifyCodeMail;
 use App\Models\User;
 use App\Models\UserEntry;
-use Carbon\Carbon;
+use App\Services\EmailVerifyService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -30,19 +31,12 @@ class UserAuthenticateNotification extends Notification
         return null;
     }
 
-    public function toMail(User $user): MailMessage
+    public function toMail(User $user): VerifyCodeMail
     {
-        $signedUrl = URL::temporarySignedRoute('api.authenticate.verification', Carbon::now()->addMinutes(10), [
-            'user' => $user->id,
-            'entry' => $this->entry->id,
-        ]);
-//        $digit = ;
+        $code = EmailVerifyService::generateCode();
 
-        return (new MailMessage)
+        EmailVerifyService::store($user->id, $code);
 
-            ->subject('Verify your email address')
-            ->line('Please click the button below to verify your email address witch is: **'.$this->entry->entry.'**')
-            ->action('Continue to '.config('app.name'), $signedUrl)
-            ->line('Or use this code instead: **1233**');
+        return (new VerifyCodeMail($code))->to($this->entry->entry);
     }
 }
