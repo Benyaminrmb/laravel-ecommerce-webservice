@@ -8,9 +8,9 @@ use App\Models\Category;
 class CategoryRepository implements CategoryRepositoryInterface
 {
 
-    public function getAll()
+    public function getAll():\Illuminate\Database\Eloquent\Collection
     {
-        Category::all();
+        return Category::all();
     }
 
     public function getById($id): Category
