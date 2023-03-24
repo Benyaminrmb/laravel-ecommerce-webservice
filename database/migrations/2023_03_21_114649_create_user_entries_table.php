@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('is_main')->comment('with user entry is the main');
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();
+            $table->comment('User email or phone numbers.');
         });
     }
 
