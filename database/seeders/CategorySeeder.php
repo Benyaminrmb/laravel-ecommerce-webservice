@@ -10,14 +10,22 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        // Create parentless categories
-        Category::factory(5)->create();
+        Category::factory()
+            ->count(5)
+            ->create();
 
-        // Create categories with a random parent
-        Category::factory(5)->create()->each(function ($category) {
-            $parent = Category::inRandomOrder()->first();
-            $category->parent_id = $parent->id;
-            $category->save();
-        });
+        // Create parent categories
+        Category::factory()
+            ->count(5)
+            ->create()
+            ->each(function ($parentCategory) {
+                // Create child categories for each parent category
+                $childCategories = Category::factory()
+                    ->count(3)
+                    ->make();
+
+                // Attach child categories to parent category
+                $parentCategory->children()->saveMany($childCategories);
+            });
     }
 }
