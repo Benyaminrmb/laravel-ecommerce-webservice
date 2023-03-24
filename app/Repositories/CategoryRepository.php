@@ -10,7 +10,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function getAll():\Illuminate\Database\Eloquent\Collection
     {
-        return Category::all();
+        return Category::whereNull('parent_id')->latest()->get();
     }
 
     public function getById($id): Category
