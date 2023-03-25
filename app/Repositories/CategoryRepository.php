@@ -7,8 +7,7 @@ use App\Models\Category;
 
 class CategoryRepository implements CategoryRepositoryInterface
 {
-
-    public function getAll():\Illuminate\Database\Eloquent\Collection
+    public function getAll(): \Illuminate\Database\Eloquent\Collection
     {
         return Category::whereNull('parent_id')->latest()->get();
     }
@@ -22,6 +21,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return $category->delete();
     }
+
     public function restore(Category $category): bool
     {
         return $category->restore();
@@ -35,6 +35,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function update(Category $category, array $newDetails): Category
     {
         $category->update($newDetails);
+
         return $category->refresh();
     }
 }

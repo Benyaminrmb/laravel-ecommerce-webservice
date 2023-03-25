@@ -18,11 +18,12 @@ class CategoryResource extends JsonResource
         /* @var Category $this */
         $result = [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
         ];
         if ($this->children()->count()) {
             $result['children'] = CategoryResource::collection($this->children);
         }
+
         return $result;
     }
 }

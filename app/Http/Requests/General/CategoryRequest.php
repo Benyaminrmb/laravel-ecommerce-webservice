@@ -23,8 +23,8 @@ class CategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required',
-            'parent_id'=>Rule::exists('categories','id')
+            'name' => 'required',
+            'parent_id' => Rule::exists('categories', 'id'),
         ];
     }
 }

@@ -7,7 +7,6 @@ use App\Http\Requests\General\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Interface\CategoryRepositoryInterface;
 use App\Models\Category;
-use Illuminate\Support\Facades\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CategoryController extends Controller
@@ -22,6 +21,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = $this->categoryRepository->getAll();
+
         return $this->jsonResponse(data: CategoryResource::collection($categories));
     }
 
@@ -34,6 +34,7 @@ class CategoryController extends Controller
             $newCategory['parent_id'] = $request->get('parent_id');
         }
         $category = $this->categoryRepository->create($newCategory);
+
         return $this->jsonResponse(data: $category, statusCode: Response::HTTP_CREATED);
     }
 
@@ -46,6 +47,7 @@ class CategoryController extends Controller
             $newCategory['parent_id'] = $request->get('parent_id');
         }
         $category = $this->categoryRepository->update($category, $newCategory);
+
         return $this->jsonResponse(data: $category, statusCode: Response::HTTP_OK);
     }
 
@@ -53,10 +55,11 @@ class CategoryController extends Controller
     {
         return $this->jsonResponse(data: $this->categoryRepository->trash($category), statusCode: Response::HTTP_OK);
     }
+
     public function restore($category_id)
     {
-        $category=Category::withTrashed()->find($category_id);
+        $category = Category::withTrashed()->find($category_id);
+
         return $this->jsonResponse(data: $this->categoryRepository->restore($category), statusCode: Response::HTTP_OK);
     }
-
 }

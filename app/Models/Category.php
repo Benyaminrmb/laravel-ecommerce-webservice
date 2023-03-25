@@ -10,7 +10,8 @@ class Category extends Model
 {
     use HasFactory,SoftDeletes;
 
-    protected $fillable=['name','parent_id'];
+    protected $fillable = ['name', 'parent_id'];
+
     public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(related: Category::class, foreignKey: 'parent_id');

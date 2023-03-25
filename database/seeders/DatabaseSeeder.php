@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             function ($sequence) {
                 return [
                     'password' => \Hash::make('a'),
-                    'role_id' => Role::where('name', RoleEnum::ADMIN->value)->first()->id
+                    'role_id' => Role::where('name', RoleEnum::ADMIN->value)->first()->id,
                 ];
             },
         ))->has(UserEntry::factory()->state(new Sequence(
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
                     'is_main' => true,
                 ];
             },
-        )),'entries')->create();
+        )), 'entries')->create();
         \App\Models\User::factory(10)->create();
     }
 }

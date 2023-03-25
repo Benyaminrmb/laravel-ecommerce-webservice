@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('quantity')->unsigned()->comment('The current stock quantity for each product.');
             $table->boolean('featured')->default(false)->comment('A boolean value indicating whether the product should be displayed prominently on the website or not.');
 
-
             $table->softDeletes();
             $table->timestamps();
             $table->comment('Products table.');

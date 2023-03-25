@@ -61,7 +61,7 @@ class User extends Authenticatable
         return $this->hasMany(related: UserEntry::class);
     }
 
-    public function latestEntry():UserEntry
+    public function latestEntry(): UserEntry
     {
         return $this->entries()->latest()->first();
     }

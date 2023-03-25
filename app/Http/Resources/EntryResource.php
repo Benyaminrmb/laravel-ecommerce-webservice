@@ -17,11 +17,11 @@ class EntryResource extends JsonResource
     {
         /** @var UserEntry $this */
         return [
-            'id'=>$this->id,
-            'type'=>$this->entry,
-            'entry'=>$this->entry,
-            'is_main'=>$this->is_main,
-            'is_verified'=> (bool)$this->verified_at,
+            'id' => $this->id,
+            'type' => $this->entry,
+            'entry' => $this->entry,
+            'is_main' => $this->is_main,
+            'is_verified' => (bool) $this->verified_at,
         ];
     }
 }
