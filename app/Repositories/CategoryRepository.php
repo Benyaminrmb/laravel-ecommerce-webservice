@@ -18,9 +18,13 @@ class CategoryRepository implements CategoryRepositoryInterface
         return Category::findOrFail($id);
     }
 
-    public function delete($id)
+    public function trash(Category $category): bool
     {
-        Category::destroy($id);
+        return $category->delete();
+    }
+    public function restore(Category $category): bool
+    {
+        return $category->restore();
     }
 
     public function create(array $details)
