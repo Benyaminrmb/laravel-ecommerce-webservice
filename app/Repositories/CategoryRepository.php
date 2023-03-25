@@ -13,9 +13,9 @@ class CategoryRepository implements CategoryRepositoryInterface
         return Category::whereNull('parent_id')->latest()->get();
     }
 
-    public function getById($id): Category
+    public function getById(Category $category): Category
     {
-        return Category::findOrFail($id);
+        return $category;
     }
 
     public function trash(Category $category): bool
@@ -32,8 +32,9 @@ class CategoryRepository implements CategoryRepositoryInterface
         Category::create($details);
     }
 
-    public function update($id, array $newDetails)
+    public function update(Category $category, array $newDetails): Category
     {
-        Category::whereId($id)->update($newDetails);
+        $category->update($newDetails);
+        return $category->refresh();
     }
 }
