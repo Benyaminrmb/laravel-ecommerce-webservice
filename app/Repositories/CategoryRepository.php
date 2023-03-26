@@ -29,7 +29,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function create(array $details)
     {
-        Category::create($details);
+        return Category::create($details);
     }
 
     public function update(Category $category, array $newDetails): Category
