@@ -8,11 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         /** @var User $this */
@@ -23,7 +18,7 @@ class UserResource extends JsonResource
             'entries' => EntryResource::collection($this->entries),
             'role' => RoleResource::make($this->role),
         ];
-        if ($this->token) {
+        if (isset($this->token) && !empty($this->token)) {
             $result['token'] = $this->token;
         }
 
