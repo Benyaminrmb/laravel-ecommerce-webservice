@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Minimize\UserMinimizeResource;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Upload;
@@ -17,7 +18,7 @@ class UploadResource extends JsonResource
             'id' => $this->id,
             'path' => $this->path,
             'title' => $this->title,
-            'user' => UserResource::make($this->user),
+            'user' => UserMinimizeResource::make($this->user),
         ];
     }
 }
