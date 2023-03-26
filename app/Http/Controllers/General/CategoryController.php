@@ -60,6 +60,9 @@ class CategoryController extends Controller
     {
         $category = Category::withTrashed()->find($category_id);
 
-        return $this->jsonResponse(data: $this->categoryRepository->restore($category), statusCode: Response::HTTP_OK);
+        return $this->jsonResponse(
+            data: $this->categoryRepository->restore($category),
+            statusCode: Response::HTTP_OK
+        );
     }
 }
