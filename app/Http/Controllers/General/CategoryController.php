@@ -35,7 +35,7 @@ class CategoryController extends Controller
         }
         $category = $this->categoryRepository->create($newCategory);
 
-        return $this->jsonResponse(data: $category, statusCode: Response::HTTP_CREATED);
+        return $this->jsonResponse(data: CategoryResource::make($category), statusCode: Response::HTTP_CREATED);
     }
 
     public function update(Category $category, CategoryRequest $request)
