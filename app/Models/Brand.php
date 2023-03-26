@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Brand extends Model
 {
     use HasFactory;
+
+    public function logo()
+    {
+        $this->belongsTo(
+            related: Upload::class,
+            foreignKey: 'logo_id'
+        );
+    }
 }
