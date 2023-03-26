@@ -2,11 +2,11 @@
 
 namespace App\Http\Resources;
 
-use App\Models\UserEntry;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EntryResource extends JsonResource
+class CategoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,13 +15,15 @@ class EntryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var UserEntry $this */
-        return [
+        /* @var Category $this */
+        $result = [
             'id' => $this->id,
-            'type' => $this->entry,
-            'entry' => $this->entry,
-            'is_main' => $this->is_main,
-            'is_verified' => (bool) $this->verified_at,
+            'name' => $this->name,
         ];
+        if ($this->children()->count()) {
+            $result['children'] = CategoryResource::collection($this->children);
+        }
+
+        return $result;
     }
 }

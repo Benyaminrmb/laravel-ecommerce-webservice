@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
             $table->comment('Products categories. Such as Technology - Gadgets - Earphones.');
         });
