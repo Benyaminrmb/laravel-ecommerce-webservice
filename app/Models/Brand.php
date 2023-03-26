@@ -11,9 +11,9 @@ class Brand extends Model
     use HasFactory,SoftDeletes;
     protected $fillable=['name','logo_id'];
 
-    public function logo()
+    public function logo(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        $this->belongsTo(
+        return $this->belongsTo(
             related: Upload::class,
             foreignKey: 'logo_id'
         );
