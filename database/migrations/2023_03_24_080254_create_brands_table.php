@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('logo_id')->nullable();
             $table->foreign('logo_id')->references('id')->on('uploads')->onDelete('cascade');
 
+            $table->softDeletes();
             $table->timestamps();
             $table->comment('Products brand. Such as samsung etc.');
         });
