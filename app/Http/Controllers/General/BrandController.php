@@ -27,38 +27,32 @@ class BrandController extends Controller
 
     public function store(BrandRequest $request)
     {
-        $newBrand = [
-            'name' => $request->get('name'),
-        ];
-        if (isset($request->logo_id)) {
-            $newBrand['logo_id'] = $request->get('logo_id');
-        }
-        $brand = $this->brandRepository->create($newBrand);
+        $data = $request->validated();
+        #todo upload logo
+        //.......
 
+        $brand = $this->brandRepository->create($data);
         return $this->jsonResponse(data: BrandResource::make($brand), statusCode: Response::HTTP_CREATED);
     }
 
-    public function update(Brand $brand, BrandRequest $request)
+    public function update(BrandRequest $request , $id)
     {
-        $newBrand = [
-            'name' => $request->get('name'),
-        ];
-        if (isset($request->logo_id)) {
-            $newBrand['logo_id'] = $request->get('logo_id');
-        }
-        $brand = $this->brandRepository->update($brand, $newBrand);
+        $data = $request->validated();
+        #todo upload logo
+        //.......
 
-        return $this->jsonResponse(data: $brand, statusCode: Response::HTTP_OK);
+        $brand = $this->brandRepository->update($id, $data);
+        return $this->jsonResponse(data: $brand, statusCode: Response::HTTP_ACCEPTED);
     }
 
-    public function trash(Brand $brand)
+    public function trash($id)
     {
-        return $this->jsonResponse(data: $this->brandRepository->trash($brand), statusCode: Response::HTTP_OK);
+        return $this->jsonResponse(data: $this->brandRepository->trash($id), statusCode: Response::HTTP_OK);
     }
 
-    public function restore($brand_id)
+    public function restore($id)
     {
-        $brand = Brand::withTrashed()->find($brand_id);
+        $brand = Brand::withTrashed()->find($id);
 
         return $this->jsonResponse(
             data: $this->brandRepository->restore($brand),

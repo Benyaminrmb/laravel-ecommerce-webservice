@@ -21,44 +21,32 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = $this->categoryRepository->getAll();
-
         return $this->jsonResponse(data: CategoryResource::collection($categories));
     }
 
     public function store(CategoryRequest $request)
     {
-        $newCategory = [
-            'name' => $request->get('name'),
-        ];
-        if (isset($request->parent_id)) {
-            $newCategory['parent_id'] = $request->get('parent_id');
-        }
-        $category = $this->categoryRepository->create($newCategory);
+        $data = $request->validated();
+        $category = $this->categoryRepository->create($data);
 
         return $this->jsonResponse(data: CategoryResource::make($category), statusCode: Response::HTTP_CREATED);
     }
 
-    public function update(Category $category, CategoryRequest $request)
+    public function update(CategoryRequest $request, $id)
     {
-        $newCategory = [
-            'name' => $request->get('name'),
-        ];
-        if (isset($request->parent_id)) {
-            $newCategory['parent_id'] = $request->get('parent_id');
-        }
-        $category = $this->categoryRepository->update($category, $newCategory);
-
+        $data = $request->validated();
+        $category = $this->categoryRepository->update($id, $data);
         return $this->jsonResponse(data: $category, statusCode: Response::HTTP_OK);
     }
 
-    public function trash(Category $category)
+    public function trash($id)
     {
-        return $this->jsonResponse(data: $this->categoryRepository->trash($category), statusCode: Response::HTTP_OK);
+        return $this->jsonResponse(data: $this->categoryRepository->trash($id), statusCode: Response::HTTP_OK);
     }
 
-    public function restore($category_id)
+    public function restore($id)
     {
-        $category = Category::withTrashed()->find($category_id);
+        $category = Category::withTrashed()->find($id);
 
         return $this->jsonResponse(
             data: $this->categoryRepository->restore($category),
