@@ -2,40 +2,21 @@
 
 namespace App\Repositories;
 
-use App\Interface\BrandRepositoryInterface;
+use App\Interface\Repository\BrandRepositoryInterface;
 use App\Models\Brand;
 
-class BrandRepository implements BrandRepositoryInterface
+class BrandRepository extends BaseRepository implements BrandRepositoryInterface
 {
-    public function getAll(): \Illuminate\Database\Eloquent\Collection
+    protected $model = Brand::class;
+
+    public function trash(int $id): bool
     {
-        return Brand::latest()->get();
+        return $this->query->find($id)->delete();
     }
 
-    public function getById(Brand $brand): Brand
+    public function restore(int $id): bool
     {
-        return $brand;
+        return $this->query->find($id)->restore();
     }
 
-    public function trash(Brand $brand): bool
-    {
-        return $brand->delete();
-    }
-
-    public function restore(Brand $brand): bool
-    {
-        return $brand->restore();
-    }
-
-    public function create(array $details)
-    {
-        return Brand::create($details);
-    }
-
-    public function update(Brand $brand, array $newDetails): Brand
-    {
-        $brand->update($newDetails);
-
-        return $brand->refresh();
-    }
 }

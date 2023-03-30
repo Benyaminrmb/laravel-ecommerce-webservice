@@ -23,8 +23,15 @@ class CategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
+            'name' => 'required|string|min:2|max:100',
             'parent_id' => Rule::exists('categories', 'id'),
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $this->mergeIfMissing([
+           'parent_id' => null
+        ]);
     }
 }
