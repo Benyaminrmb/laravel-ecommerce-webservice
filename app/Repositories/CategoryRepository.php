@@ -2,40 +2,19 @@
 
 namespace App\Repositories;
 
-use App\Interface\CategoryRepositoryInterface;
+use App\Interface\Repository\CategoryRepositoryInterface;
 use App\Models\Category;
 
-class CategoryRepository implements CategoryRepositoryInterface
+class CategoryRepository extends BaseRepository implements CategoryRepositoryInterface
 {
-    public function getAll(): \Illuminate\Database\Eloquent\Collection
+    protected $model = Category::class;
+    public function trash(int $id): bool
     {
-        return Category::whereNull('parent_id')->latest()->get();
+        return $this->query->find($id)->delete();
     }
 
-    public function getById(Category $category): Category
+    public function restore(int $id): bool
     {
-        return $category;
-    }
-
-    public function trash(Category $category): bool
-    {
-        return $category->delete();
-    }
-
-    public function restore(Category $category): bool
-    {
-        return $category->restore();
-    }
-
-    public function create(array $details)
-    {
-        return Category::create($details);
-    }
-
-    public function update(Category $category, array $newDetails): Category
-    {
-        $category->update($newDetails);
-
-        return $category->refresh();
+        return $this->query->find($id)->restore();
     }
 }

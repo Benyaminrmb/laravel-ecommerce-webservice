@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Interface\BrandRepositoryInterface;
-use App\Interface\CategoryRepositoryInterface;
+use App\Interface\Repository\BrandRepositoryInterface;
+use App\Interface\Repository\CategoryRepositoryInterface;
 use App\Repositories\BrandRepository;
 use App\Repositories\CategoryRepository;
 use Illuminate\Support\ServiceProvider;

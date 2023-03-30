@@ -5,7 +5,7 @@ namespace App\Http\Controllers\General;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\General\BrandRequest;
 use App\Http\Resources\BrandResource;
-use App\Interface\BrandRepositoryInterface;
+use App\Interface\Repository\BrandRepositoryInterface;
 use App\Models\Brand;
 use Symfony\Component\HttpFoundation\Response;
 

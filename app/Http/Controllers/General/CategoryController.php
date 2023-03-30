@@ -5,7 +5,7 @@ namespace App\Http\Controllers\General;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\General\CategoryRequest;
 use App\Http\Resources\CategoryResource;
-use App\Interface\CategoryRepositoryInterface;
+use App\Interface\Repository\CategoryRepositoryInterface;
 use App\Models\Category;
 use Symfony\Component\HttpFoundation\Response;
 
