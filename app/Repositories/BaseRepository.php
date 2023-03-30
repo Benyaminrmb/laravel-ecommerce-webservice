@@ -2,10 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Interface\Repository\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class BaseRepository
+class BaseRepository implements BaseRepositoryInterface
 {
     protected Builder|Model $query;
     public function __construct()
