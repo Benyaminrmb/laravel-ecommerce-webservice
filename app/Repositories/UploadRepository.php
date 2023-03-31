@@ -17,7 +17,7 @@ class UploadRepository implements UploadRepositoryInterface
         $extension = $file->getClientOriginalExtension();
         $fileName = str_replace(".$extension", '', $fileName);
         $fileName = preg_replace('/[^A-Za-z0-9\-]/', '', $fileName);
-        $fileName = $fileName . '_' . time() . '.' . $extension;
+        $fileName = $fileName.'_'.time().'.'.$extension;
 
         // Save the file to storage
         $path = $file->storeAs('uploads', $fileName, 'public');

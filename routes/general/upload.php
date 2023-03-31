@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\General\BrandController;
 use App\Http\Controllers\General\UploadController;
 use Illuminate\Support\Facades\Route;
 
