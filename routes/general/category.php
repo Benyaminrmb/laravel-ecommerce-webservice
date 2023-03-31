@@ -13,5 +13,4 @@ Route::prefix('/category')->group(function () {
         Route::delete('/{id}', [CategoryController::class, 'trash']);
         Route::put('/{id}/restore', [CategoryController::class, 'restore']);
     });
-
 });

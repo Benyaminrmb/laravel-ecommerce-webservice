@@ -31,7 +31,7 @@ class CategoryRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->mergeIfMissing([
-           'parent_id' => null
+            'parent_id' => null,
         ]);
     }
 }

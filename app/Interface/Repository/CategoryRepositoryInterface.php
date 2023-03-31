@@ -2,8 +2,6 @@
 
 namespace App\Interface\Repository;
 
-use App\Models\Category;
-
 interface CategoryRepositoryInterface
 {
     public function getAll();

@@ -2,8 +2,6 @@
 
 namespace App\Interface\Repository;
 
-use App\Models\Brand;
-
 interface BrandRepositoryInterface extends BaseRepositoryInterface
 {
     public function getAll();

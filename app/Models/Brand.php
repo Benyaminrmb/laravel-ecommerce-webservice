@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Brand extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable=['name','logo_id'];
+
+    protected $fillable = ['name', 'logo_id'];
 
     public function logo(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -21,6 +21,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = $this->categoryRepository->getAll();
+
         return $this->jsonResponse(data: CategoryResource::collection($categories));
     }
 
@@ -36,6 +37,7 @@ class CategoryController extends Controller
     {
         $data = $request->validated();
         $category = $this->categoryRepository->update($id, $data);
+
         return $this->jsonResponse(data: $category, statusCode: Response::HTTP_OK);
     }
 

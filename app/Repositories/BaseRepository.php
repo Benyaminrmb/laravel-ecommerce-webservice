@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class BaseRepository implements BaseRepositoryInterface
 {
     protected Builder|Model $query;
+
     public function __construct()
     {
         $this->query = (new $this->model);
@@ -37,6 +38,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function update(int $id, array $newDetails)
     {
         $model = $this->query->find($id);
+
         return tap($model)->update($newDetails);
     }
 

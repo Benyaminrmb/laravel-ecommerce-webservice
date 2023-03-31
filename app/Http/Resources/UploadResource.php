@@ -3,8 +3,6 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Minimize\UserMinimizeResource;
-use App\Models\Brand;
-use App\Models\Category;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

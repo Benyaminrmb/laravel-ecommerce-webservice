@@ -28,20 +28,22 @@ class BrandController extends Controller
     public function store(BrandRequest $request)
     {
         $data = $request->validated();
-        #todo upload logo
+        //todo upload logo
         //.......
 
         $brand = $this->brandRepository->create($data);
+
         return $this->jsonResponse(data: BrandResource::make($brand), statusCode: Response::HTTP_CREATED);
     }
 
-    public function update(BrandRequest $request , $id)
+    public function update(BrandRequest $request, $id)
     {
         $data = $request->validated();
-        #todo upload logo
+        //todo upload logo
         //.......
 
         $brand = $this->brandRepository->update($id, $data);
+
         return $this->jsonResponse(data: $brand, statusCode: Response::HTTP_ACCEPTED);
     }
 

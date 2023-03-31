@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources\Minimize;
 
-use App\Http\Resources\EntryResource;
-use App\Http\Resources\RoleResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

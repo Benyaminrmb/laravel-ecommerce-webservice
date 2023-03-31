@@ -12,5 +12,4 @@ Route::prefix('/brand')->group(function () {
         Route::delete('/{id}', [BrandController::class, 'trash']);
         Route::put('/{id}/restore', [BrandController::class, 'restore']);
     });
-
 });

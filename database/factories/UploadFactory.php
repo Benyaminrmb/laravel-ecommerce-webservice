@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Brand;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,10 +12,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class UploadFactory extends Factory
 {
     protected $model = Upload::class;
+
     public function definition(): array
     {
         return [
-            'user_id'  => function () {
+            'user_id' => function () {
                 return User::factory()->create()->id;
             },
             'path' => $this->faker->imageUrl(),
