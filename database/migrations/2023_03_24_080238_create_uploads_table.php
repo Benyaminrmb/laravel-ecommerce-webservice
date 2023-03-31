@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('path');
             $table->string('title')->nullable();
             $table->timestamps();
+            $table->softDeletes();
             $table->comment('All uploaded files will store in this table.');
         });
     }
