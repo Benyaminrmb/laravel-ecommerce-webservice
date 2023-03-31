@@ -39,4 +39,14 @@ class BaseRepository implements BaseRepositoryInterface
         $model = $this->query->find($id);
         return tap($model)->update($newDetails);
     }
+
+    public function trash(int $id): bool
+    {
+        return $this->query->find($id)->delete();
+    }
+
+    public function restore(int $id): bool
+    {
+        return $this->query->find($id)->restore();
+    }
 }
