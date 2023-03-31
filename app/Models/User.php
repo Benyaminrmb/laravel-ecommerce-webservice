@@ -79,4 +79,11 @@ class User extends Authenticatable
         return $this->entries()
             ->where('type', UserEntryTypeEnum::EMAIL->value)->first()->entry;
     }
+
+    public function uploads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(
+            related: Upload::class
+        );
+    }
 }
