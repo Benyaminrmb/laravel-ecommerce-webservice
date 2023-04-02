@@ -24,7 +24,9 @@ class Controller extends BaseController
         if ($message) {
             $response['message'] = $message;
         }
-        $response['data'] = $data;
+        if ($data!==null) {
+            $response['data'] = $data;
+        }
 
         return response()->json($response, $statusCode);
     }
