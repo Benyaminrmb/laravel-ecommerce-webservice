@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('uploads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->index()->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('path');
             $table->string('title')->nullable();
             $table->timestamps();
