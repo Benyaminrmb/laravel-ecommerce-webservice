@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interface\Repository\UploadRepositoryInterface;
+use App\Models\Upload;
 use Illuminate\Support\Facades\Storage;
 
 class UploadRepository implements UploadRepositoryInterface
@@ -22,6 +23,8 @@ class UploadRepository implements UploadRepositoryInterface
         // Save the file to storage
         $path = $file->storeAs('uploads', $fileName, 'public');
 
-        return $path;
+    public function get($id)
+    {
+        return Upload::find($id);
     }
 }

@@ -33,4 +33,10 @@ class UploadController extends Controller
 
         return response()->json(['path' => $path, 'id' => $fileModel->id]);
     }
+
+    public function show($id)
+    {
+        return $this->jsonResponse(data: UploadResource::make($this->get($id)));
+    }
+
 }
