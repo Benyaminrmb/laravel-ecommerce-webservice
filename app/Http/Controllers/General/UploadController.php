@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\General;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\General\UploadRequest;
+use App\Http\Resources\UploadResource;
 use App\Repositories\UploadRepository;
+use ErrorException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 
 class UploadController extends Controller
@@ -15,22 +19,65 @@ class UploadController extends Controller
         $this->uploadRepository = $uploadRepository;
     }
 
-    public function store(Request $request)
+    public function store(UploadRequest $request)
     {
         $user = \Auth::user();
-        $validatedData = $request->validate([
-            'upload' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'title' => 'nullable|string|max:255',
-        ]);
 
-        $file = $request->file('upload');
+        $file = $request->file('file');
         $path = $this->uploadRepository->save($file);
+
+
 
         $fileModel = $user->uploads()->create([
             'path' => $path,
             'title' => $request->input('title'),
         ]);
 
-        return response()->json(['path' => $path, 'id' => $fileModel->id]);
+        return $this->jsonResponse(data:UploadResource::make($fileModel),statusCode: 201);
     }
+
+    public function update(UploadRequest $request,$id)
+    {
+        $user = \Auth::user();
+        //todo update an image only if the same $user created it.
+        $upload = $this->get($id);
+        $file = $request->file('file');
+        $path = $this->uploadRepository->update($upload,$file);
+
+
+
+
+        $upload->update(array_filter([
+            'path' => $path,
+            'title' => $request->input('title')
+        ]));
+
+        return $this->jsonResponse(data:UploadResource::make($upload));
+    }
+
+
+    private function get($id){
+        if(!$upload = $this->uploadRepository->get($id)){
+            throw new HttpResponseException($this->jsonResponse(status: false, message: __('general.notFound'), statusCode: 404));
+        }
+        return $upload;
+    }
+
+    public function show($id)
+    {
+        return $this->jsonResponse(data: UploadResource::make($this->get($id)));
+    }
+    public function softDelete($id)
+    {
+        $upload = $this->get($id);
+        $this->uploadRepository->softDelete($upload);
+        return $this->jsonResponse(message: __('general.removed'));
+    }
+    public function restore($id)
+    {
+        $upload = $this->get($id);
+        $this->uploadRepository->restore($upload);
+        return $this->jsonResponse(message: __('general.restore'));
+    }
+
 }
