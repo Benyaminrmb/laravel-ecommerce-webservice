@@ -10,7 +10,7 @@ class Upload extends Model
 {
     use HasFactory,SoftDeletes;
 
-    protected $fillable = ['path', 'deleted_at'];
+    protected $fillable = ['path', 'deleted_at','title'];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
