@@ -11,7 +11,14 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    public function jsonResponse($success = true, $data = null, $message = null, $statusCode = 200): JsonResponse
+    /**
+     * @param $status boolean
+     * @param $data array|string|mixed
+     * @param $message string
+     * @param $statusCode numeric
+     * @return JsonResponse
+     */
+    public function jsonResponse($status = true, $data = null, $message = null, $statusCode = 200): JsonResponse
     {
         $response['status'] = $status;
         if ($message) {
