@@ -44,7 +44,7 @@ class AuthenticateController extends Controller
                 ],
             ]);
             if ($validator->fails()) {
-                return $this->jsonResponse(success: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
+                return $this->jsonResponse(status: false, data: $validator->errors(), statusCode: ResponseAlias::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             if (UserService::checkPassword($fetchUser, $password)) {
@@ -53,14 +53,14 @@ class AuthenticateController extends Controller
                 return $this->jsonResponse(data: UserResource::make($fetchUser));
             }
 
-            return $this->jsonResponse(success: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
+            return $this->jsonResponse(status: false, data: __('auth.failed'), statusCode: ResponseAlias::HTTP_UNAUTHORIZED);
         }
 
         $fetchUser->notify(new UserAuthenticateNotification($fetchUser->latestEntry()));
 
         $fetchUser->token = UserService::createToken($fetchUser);
 
-        return $this->jsonResponse(success: false, data: UserResource::make($fetchUser), message: __('auth.verificationCodeSentToEmail'));
+        return $this->jsonResponse(status: false, data: UserResource::make($fetchUser), message: __('auth.verificationCodeSentToEmail'));
     }
 
     public function verify(VerifyCodeRequest $request)

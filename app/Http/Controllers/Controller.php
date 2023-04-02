@@ -13,7 +13,7 @@ class Controller extends BaseController
 
     public function jsonResponse($success = true, $data = null, $message = null, $statusCode = 200): JsonResponse
     {
-        $response['success'] = $success;
+        $response['status'] = $status;
         if ($message) {
             $response['message'] = $message;
         }
