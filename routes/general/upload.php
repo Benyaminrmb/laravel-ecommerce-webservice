@@ -8,5 +8,6 @@ Route::prefix('/upload')->group(function () {
 
     Route::middleware('auth:api')->group(function () {
         Route::post('/', [UploadController::class, 'store']);
+        Route::post('/{id}', [UploadController::class, 'update']);
     });
 });
