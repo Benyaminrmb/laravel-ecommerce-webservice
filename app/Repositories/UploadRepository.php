@@ -28,4 +28,27 @@ class UploadRepository implements UploadRepositoryInterface
     {
         return Upload::find($id);
     }
+
+    public function forceDelete(Upload $upload): bool
+    {
+        if(Storage::disk('public')->delete($upload->path)){
+            $upload->forceDelete();
+            return true;
+        }
+        return false;
+    }
+    public function softDelete(Upload $upload): bool
+    {
+        if($upload->delete()){
+            return true;
+        }
+        return false;
+    }
+    public function restore(Upload $upload): bool
+    {
+        if($upload->restore()){
+            return true;
+        }
+        return false;
+    }
 }

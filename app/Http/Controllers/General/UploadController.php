@@ -67,5 +67,17 @@ class UploadController extends Controller
     {
         return $this->jsonResponse(data: UploadResource::make($this->get($id)));
     }
+    public function softDelete($id)
+    {
+        $upload = $this->get($id);
+        $this->uploadRepository->softDelete($upload);
+        return $this->jsonResponse(message: __('general.removed'));
+    }
+    public function restore($id)
+    {
+        $upload = $this->get($id);
+        $this->uploadRepository->restore($upload);
+        return $this->jsonResponse(message: __('general.restore'));
+    }
 
 }

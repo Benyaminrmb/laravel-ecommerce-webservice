@@ -9,5 +9,7 @@ Route::prefix('/upload')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::post('/', [UploadController::class, 'store']);
         Route::post('/{id}', [UploadController::class, 'update']);
+        Route::delete('/{id}', [UploadController::class, 'softDelete']);
+        Route::post('/{id}/restore', [UploadController::class, 'restore']);
     });
 });
