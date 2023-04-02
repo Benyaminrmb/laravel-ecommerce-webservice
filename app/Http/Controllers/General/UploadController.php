@@ -15,7 +15,7 @@ class UploadController extends Controller
         $this->uploadRepository = $uploadRepository;
     }
 
-    public function store(Request $request)
+    public function store(UploadRequest $request)
     {
         $user = \Auth::user();
         $validatedData = $request->validate([
