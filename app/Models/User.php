@@ -3,15 +3,22 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserEntryTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notification;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * @var mixed|string
+     */
+    public mixed $token;
 
     /**
      * The attributes that are mass assignable.
@@ -21,9 +28,10 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
-        'email',
+
         'password',
         'role_id',
+
     ];
 
     /**
@@ -36,19 +44,46 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
     public function role(): BelongsTo
     {
         return $this->belongsTo(
             related: Role::class, foreignKey: 'role_id'
+        );
+    }
+
+    public function sendVerificationNotification()
+    {
+        // todo send Notification to user
+    }
+
+    public function entries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(related: UserEntry::class);
+    }
+
+    public function latestEntry(): UserEntry
+    {
+        return $this->entries()->latest()->first();
+    }
+
+    public function scopeSearchEntry($query, string $type, string $entry)
+    {
+        $query->whereHas('entries', function ($sub_query) use ($entry, $type) {
+            $sub_query->where('type', $type)
+                ->where('entry', $entry);
+        });
+    }
+
+    public function routeNotificationForMail(Notification $notification): array|string
+    {
+        return $this->entries()
+            ->where('type', UserEntryTypeEnum::EMAIL->value)->first()->entry;
+    }
+
+    public function uploads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(
+            related: Upload::class
         );
     }
 }

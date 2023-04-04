@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Role as RoleEnums;
+use App\Enums\RoleEnum as RoleEnums;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

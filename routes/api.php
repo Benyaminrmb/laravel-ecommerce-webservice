@@ -18,3 +18,6 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 require_once __DIR__.'/auth.php';
+require_once __DIR__.'/general/category.php';
+require_once __DIR__.'/general/brand.php';
+require_once __DIR__.'/general/upload.php';

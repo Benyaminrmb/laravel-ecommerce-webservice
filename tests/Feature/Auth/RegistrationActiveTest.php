@@ -25,7 +25,7 @@ class RegistrationActiveTest extends TestCase
                     'first_name' => $first_name,
                     'last_name' => $last_name,
                     'email' => $email,
-                    'role_id' => Role::where('name', \App\Enums\Role::UNVERIFIED_USER->value)->first()->id,
+                    'role_id' => Role::where('name', \App\Enums\RoleEnum::UNVERIFIED_USER->value)->first()->id,
                 ],
             ]);
 
