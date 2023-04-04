@@ -7,5 +7,5 @@ use App\Models\Brand;
 
 class BrandRepository extends BaseRepository implements BrandRepositoryInterface
 {
-    protected $model = Brand::class;
+    protected string $model = Brand::class;
 }

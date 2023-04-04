@@ -10,6 +10,7 @@ Route::prefix('/upload')->group(function () {
         Route::post('/', [UploadController::class, 'store']);
         Route::post('/{id}', [UploadController::class, 'update']);
         Route::delete('/{id}', [UploadController::class, 'softDelete']);
+        Route::delete('/{id}/delete', [UploadController::class, 'delete']);
         Route::post('/{id}/restore', [UploadController::class, 'restore']);
     });
 });
