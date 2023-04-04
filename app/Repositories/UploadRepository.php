@@ -6,49 +6,49 @@ use App\Interface\Repository\UploadRepositoryInterface;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Storage;
 
-class UploadRepository implements UploadRepositoryInterface
+class UploadRepository extends BaseRepository implements UploadRepositoryInterface
 {
-    public function save($file): false|string
+    protected string $model = Upload::class;
+    public function create($data):Upload
     {
-        // Save the file to storage
-        return Storage::disk('public')->putFile(
-            'uploads', $file
+        $user = \Auth::user();
+        $storage=Storage::disk('public')->putFile(
+            'uploads', $data['file']
         );
+
+        return $user->uploads()->create([
+            'path' => $storage,
+            'title' => $data['title'],
+        ]);
     }
 
-    public function update(Upload $upload,$file): false|string
+    public function update($id,$data): false|string
     {
-        if(Storage::disk('public')->delete($upload->path)){
-            return $this->save($file);
+        $item=$this->get($id);
+
+
+        if(Storage::disk('public')->delete($item->path)){
+            $storage=Storage::disk('public')->putFile(
+                'uploads', $data['file']
+            );
+            return $item->update([
+                'path' => $storage,
+                'title' => $data['title'],
+            ]);
         }
         return false;
     }
 
-    public function get($id,$userId=null):Upload|null
-    {
-        return Upload::find($id);
-    }
 
-    public function forceDelete(Upload $upload): bool
+    public function delete($id): bool
     {
-        if(Storage::disk('public')->delete($upload->path)){
-            $upload->forceDelete();
+        /**@var $item Upload **/
+        $item=$this->getWithTrashed($id);
+        if(Storage::disk('public')->delete($item->path)){
+            $item->forceDelete();
             return true;
         }
         return false;
     }
-    public function softDelete(Upload $upload): bool
-    {
-        if($upload->delete()){
-            return true;
-        }
-        return false;
-    }
-    public function restore(Upload $upload): bool
-    {
-        if($upload->restore()){
-            return true;
-        }
-        return false;
-    }
+
 }

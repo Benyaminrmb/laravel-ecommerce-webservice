@@ -7,5 +7,5 @@ use App\Models\Category;
 
 class CategoryRepository extends BaseRepository implements CategoryRepositoryInterface
 {
-    protected $model = Category::class;
+    protected string $model = Category::class;
 }
