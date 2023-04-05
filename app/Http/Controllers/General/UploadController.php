@@ -5,6 +5,7 @@ namespace App\Http\Controllers\General;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\General\UploadRequest;
 use App\Http\Resources\UploadResource;
+use App\Models\Upload;
 use App\Repositories\UploadRepository;
 use ErrorException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -46,35 +47,35 @@ class UploadController extends Controller
         return $upload;
     }
 
-    public function show($id)
+    public function show(Upload $upload)
     {
-        return $this->jsonResponse(data: UploadResource::make($this->get($id)));
+
+        return $this->jsonResponse(data: UploadResource::make($upload));
     }
 
     /**
      * @throws AuthorizationException
      */
-    public function softDelete($id)
+    public function trash(Upload $upload)
     {
-        $upload = $this->get($id);
+
         $this->authorize('trash', $upload);
-        $this->uploadRepository->trash($id);
+        $this->uploadRepository->trash($upload);
         return $this->jsonResponse(message: __('general.trashed'));
     }
 
     /**
      * @throws AuthorizationException
      */
-    public function delete($id)
+    public function delete(Upload $upload)
     {
-        $upload = $this->get($id);
         $this->authorize('delete', $upload);
-        $this->uploadRepository->delete($id);
+        $this->uploadRepository->delete($upload);
         return $this->jsonResponse(message: __('general.removed'));
     }
-    public function restore($id)
+    public function restore(Upload $upload)
     {
-        $this->uploadRepository->restore($id);
+        $this->uploadRepository->restore($upload);
         return $this->jsonResponse(message: __('general.restore'));
     }
 

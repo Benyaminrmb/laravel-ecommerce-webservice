@@ -40,9 +40,8 @@ class UploadRepository extends BaseRepository implements UploadRepositoryInterfa
     }
 
 
-    public function delete($id): bool
+    public function delete(Upload $upload): bool
     {
-        /**@var $item Upload **/
         $item=$this->getWithTrashed($id);
         if(Storage::disk('public')->delete($item->path)){
             $item->forceDelete();

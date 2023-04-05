@@ -19,38 +19,14 @@ class BaseRepository extends Controller implements BaseRepositoryInterface
         }
     }
 
-    public function get(int $id)
-    {
-        if(!$item = $this->query->find($id)){
-            throw new HttpResponseException($this->jsonResponse(status: false, message: __('general.notFound'), statusCode: 404));
-        }
-        return $item;
-    }
-
-    public function getTrashed(int $id)
-    {
-        if(!$item = $this->query->onlyTrashed()->find($id)){
-            throw new HttpResponseException($this->jsonResponse(status: false, message: __('general.notFound'), statusCode: 404));
-        }
-        return $item;
-    }
-
-    public function getWithTrashed(int $id)
-    {
-        if(!$item = $this->query->withTrashed()->find($id)){
-            throw new HttpResponseException($this->jsonResponse(status: false, message: __('general.notFound'), statusCode: 404));
-        }
-        return $item;
-    }
-
     public function getAll()
     {
         return $this->query->latest()->get();
     }
 
-    public function destroy(int $id): bool
+    public function destroy(Builder|Model $model): bool
     {
-        return $this->query->find($id)->delete();
+        return $model->delete();
     }
 
     public function create(array $data)
@@ -58,27 +34,24 @@ class BaseRepository extends Controller implements BaseRepositoryInterface
         return $this->query->create($data);
     }
 
-    public function update(int $id, array $data)
+    public function update(Builder|Model $model, array $data)
     {
-        $model = $this->query->find($id);
         return tap($model)->update($data);
     }
 
-    public function trash(int $id): bool
+    public function trash(Builder|Model $model): bool
     {
-        return $this->query->find($id)->delete();
+        return $model->delete();
     }
 
-    public function delete(int $id)
+    public function delete(Model $model): ?bool
     {
-        $item=$this->getWithTrashed($id);
-        return $item->forceDelete();
+        return $model->forceDelete();
     }
 
-    public function restore(int $id): bool
+    public function restore(Builder|Model $model): bool
     {
-        $item=$this->getTrashed($id);
-        return $item->restore();
+        return $model->restore();
     }
 
 
